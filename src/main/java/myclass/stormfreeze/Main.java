@@ -1,13 +1,15 @@
-package myclass.jails;
+package myclass.stormfreeze;
 
-import myclass.jails.accesories.SpawnUtil;
-import myclass.jails.accesories.TitleApi;
-import myclass.jails.accesories.Utils;
-import myclass.jails.command.SetPrisionerJail;
-import myclass.jails.command.SetPrisionerReleased;
+import myclass.stormfreeze.accesories.SpawnUtil;
+import myclass.stormfreeze.accesories.TitleApi;
+import myclass.stormfreeze.accesories.Utils;
+import myclass.stormfreeze.nuevo.SetGreenLocation;
+import myclass.stormfreeze.nuevo.SetRedlocation;
 import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.craftbukkit.libs.org.ibex.nestedvm.util.Seekable;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.*;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import net.minecraft.server.v1_8_R3.EnumParticle;
@@ -17,28 +19,21 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
+import java.io.File;
+import java.util.*;
 
 public final class Main extends JavaPlugin implements Listener, CommandExecutor{
 
-    public Seekable.File location;
+
+    public File location;
     public FileConfiguration spawnCoords;
 
     public static Main instance;
@@ -46,9 +41,6 @@ public final class Main extends JavaPlugin implements Listener, CommandExecutor{
     public Map<UUID, ItemStack> helmets = new HashMap<>();
     public Map<UUID, BukkitTask> tasks = new HashMap<>();
     private Main plugin;
-
-    public Location jailLocation;
-    public Location releasedLocation;
 
     @Override
     public void onEnable() {
@@ -62,9 +54,9 @@ public final class Main extends JavaPlugin implements Listener, CommandExecutor{
         /* Loaded Class */
         loadListener();
         loadCommand();
-        saveDefaultConfig();
         SpawnUtil.getManager().setupFiles();
         SpawnUtil.getManager().reloadConfig();
+        saveDefaultConfig();
 
     }
     @Override
@@ -91,8 +83,8 @@ public final class Main extends JavaPlugin implements Listener, CommandExecutor{
 
         getCommand("freeze").setExecutor(this);
         getCommand("ss").setExecutor(this);
-        getCommand("setjail").setExecutor(new SetPrisionerJail(this));
-        getCommand("setreleased").setExecutor(new SetPrisionerReleased(this));
+        getCommand("setred").setExecutor(new SetRedlocation(this));
+        getCommand("setgreen").setExecutor(new SetGreenLocation(this));
 
         Utils.log("&7(&6SuitCosmetics&7) &aCommands Loaded...");
 
@@ -103,25 +95,42 @@ public final class Main extends JavaPlugin implements Listener, CommandExecutor{
 
     @EventHandler
     public void onPlayerFreezeJoin(PlayerJoinEvent event) {
+
+        SpawnUtil spawnCoords = SpawnUtil.getManager();
+
         Player player = event.getPlayer();
         if (frozenPlayers.containsKey(player.getUniqueId())) {
             playFreezeAnimation(player, 10, getConfig().getInt("PARTICLES.AMOUNT"), 1, 0.05f);
-            player.teleport(jailLocation);
+            World w = Bukkit.getServer().getWorld(spawnCoords.getConfig().getString("red.world"));
+            double x = spawnCoords.getConfig().getDouble("red.x");
+            double y = spawnCoords.getConfig().getDouble("red.y");
+            double z = spawnCoords.getConfig().getDouble("red.z");
+            float yaw = (float)spawnCoords.getConfig().getDouble("red.yaw");
+            float pitch = (float)spawnCoords.getConfig().getDouble("red.pitch");
+            Location loc = new Location(w, x, y, z, yaw, pitch);
+            player.teleport(loc);
         }
     }
 
     @EventHandler
     public void freezeEvent(PlayerMoveEvent e) {
+
+        SpawnUtil spawnCoords = SpawnUtil.getManager();
+
         Player player = e.getPlayer();
         if (!frozenPlayers.containsKey(e.getPlayer().getUniqueId())) {
             return;
         }
-        if (e.getFrom().getBlockX() != e.getTo().getBlockX() || e.getFrom().getBlockZ() != e.getTo().getBlockZ()) {
-            TitleApi.sendTitle(player, 10, 30, 10, ChatColor.translateAlternateColorCodes('&', getConfig().getString("TITLES.FROZED.TITLE")), getConfig().getString("TITLES.FROZED.SUBTITLE"));
-            e.getPlayer().teleport(frozenPlayers.get(player.getUniqueId()));
-            player.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("FROZZED-MESSAGE")));
-            player.teleport(jailLocation);
-        }
+        player.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("FROZZED-MESSAGE")));
+        World w = Bukkit.getServer().getWorld(spawnCoords.getConfig().getString("red.world"));
+        double x = spawnCoords.getConfig().getDouble("red.x");
+        double y = spawnCoords.getConfig().getDouble("red.y");
+        double z = spawnCoords.getConfig().getDouble("red.z");
+        float yaw = (float)spawnCoords.getConfig().getDouble("red.yaw");
+        float pitch = (float)spawnCoords.getConfig().getDouble("red.pitch");
+        Location loc = new Location(w, x, y, z, yaw, pitch);
+        player.teleport(loc);
+
     }
 
     @EventHandler
@@ -206,21 +215,37 @@ public final class Main extends JavaPlugin implements Listener, CommandExecutor{
 
         String targetName = args[0];
         if (Bukkit.getOfflinePlayer(targetName).getPlayer() != null) {
+
+            SpawnUtil spawnCoords = SpawnUtil.getManager();
+
             Player target = Bukkit.getPlayer(targetName);
 
             if (frozenPlayers.containsKey(target.getUniqueId())) {
                 frozenPlayers.remove(target.getUniqueId());
                 TitleApi.sendTitle(target, 10, 30, 10, ChatColor.translateAlternateColorCodes('&', getConfig().getString("TITLES.UNFROZED.TITLE")), getConfig().getString("TITLES.UNFROZED.SUBTITLE"));
                 cuandoDesfrozea(target);
-                player.teleport(releasedLocation);
                 player.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("PREFIX") + getConfig().getString("STAFF-UNFROZZED-MESSAGE") + getConfig().getString("COLOR-TARGET") + targetName));
-
+                World w = Bukkit.getServer().getWorld(spawnCoords.getConfig().getString("green.world"));
+                double x = spawnCoords.getConfig().getDouble("green.x");
+                double y = spawnCoords.getConfig().getDouble("green.y");
+                double z = spawnCoords.getConfig().getDouble("green.z");
+                float yaw = (float)spawnCoords.getConfig().getDouble("green.yaw");
+                float pitch = (float)spawnCoords.getConfig().getDouble("green.pitch");
+                Location loc2 = new Location(w, x, y, z, yaw, pitch);
+                player.teleport(loc2);
             } else {
                 frozenPlayers.put(target.getUniqueId(), target.getLocation().clone());
                 playFreezeAnimation(target, 10, getConfig().getInt("PARTICLES.AMOUNT"), 1, 0.05f);
                 cuandoFrozea(target);
-                player.teleport(jailLocation);
                 player.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("PREFIX") + getConfig().getString("STAFF-FROZZED-MESSAGE") + getConfig().getString("COLOR-TARGET") + targetName));
+                World w = Bukkit.getServer().getWorld(spawnCoords.getConfig().getString("red.world"));
+                double x = spawnCoords.getConfig().getDouble("red.x");
+                double y = spawnCoords.getConfig().getDouble("red.y");
+                double z = spawnCoords.getConfig().getDouble("red.z");
+                float yaw = (float)spawnCoords.getConfig().getDouble("red.yaw");
+                float pitch = (float)spawnCoords.getConfig().getDouble("red.pitch");
+                Location loc = new Location(w, x, y, z, yaw, pitch);
+                player.teleport(loc);
             }
         }
         return false;
@@ -254,22 +279,60 @@ public final class Main extends JavaPlugin implements Listener, CommandExecutor{
     }
 
     public void cuandoFrozea(Player player) {
+
+        SpawnUtil spawnCoords = SpawnUtil.getManager();
+
         if (player.getInventory().getHelmet() != null) {
             helmets.put(player.getUniqueId(), player.getInventory().getHelmet());
         }
+        List<String> commandlist = Main.instance.getConfig().getStringList("COMMANDS-LIST");
+        for (String s : commandlist) {
+            Bukkit.dispatchCommand(player, s);
+        }
+        World w = Bukkit.getServer().getWorld(spawnCoords.getConfig().getString("red.world"));
+        double x = spawnCoords.getConfig().getDouble("red.x");
+        double y = spawnCoords.getConfig().getDouble("red.y");
+        double z = spawnCoords.getConfig().getDouble("red.z");
+        float yaw = (float)spawnCoords.getConfig().getDouble("red.yaw");
+        float pitch = (float)spawnCoords.getConfig().getDouble("red.pitch");
+        Location loc = new Location(w, x, y, z, yaw, pitch);
+        player.teleport(loc);
         player.getInventory().setHelmet(new ItemStack(Material.PACKED_ICE));
-        player.teleport(jailLocation);
+        TitleApi.sendTitle(player, 10, 30, 10, ChatColor.translateAlternateColorCodes('&', getConfig().getString("TITLES.FROZED.TITLE")), getConfig().getString("TITLES.FROZED.SUBTITLE"));
         player.getPlayer().setGameMode(GameMode.ADVENTURE);
+    }
+    @EventHandler
+    public void commandBlock(PlayerCommandPreprocessEvent event) {
+        if (frozenPlayers.containsKey(event.getPlayer().getUniqueId())) {
+            List<String> blocklist = Main.instance.getConfig().getStringList("COMMANDS-BLOCK");
+            for (String s : blocklist) {
+                if (event.getMessage().startsWith(s)) {
+                    event.setCancelled(true);
+                    event.getPlayer().sendMessage("no tienes permisos xddddd");
+                }
+            }
+        }
     }
 
     public void cuandoDesfrozea(Player player) {
+
+        SpawnUtil spawnCoords = SpawnUtil.getManager();
+
         player.getInventory().setHelmet(null);
         if (player.getInventory().getHelmet() != null) {
             helmets.put(player.getUniqueId(), player.getInventory().getHelmet());
         }
+        World w = Bukkit.getServer().getWorld(spawnCoords.getConfig().getString("green.world"));
+        double x = spawnCoords.getConfig().getDouble("green.x");
+        double y = spawnCoords.getConfig().getDouble("green.y");
+        double z = spawnCoords.getConfig().getDouble("green.z");
+        float yaw = (float)spawnCoords.getConfig().getDouble("green.yaw");
+        float pitch = (float)spawnCoords.getConfig().getDouble("green.pitch");
+        Location loc2 = new Location(w, x, y, z, yaw, pitch);
+        player.teleport(loc2);
         player.getInventory().setHelmet(new ItemStack(Material.AIR));
         player.getPlayer().setGameMode(GameMode.SURVIVAL);
-        player.teleport(releasedLocation);
+        
     }
 
     public void onStop() {

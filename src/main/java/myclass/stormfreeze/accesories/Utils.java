@@ -1,4 +1,4 @@
-package myclass.jails.accesories;
+package myclass.stormfreeze.accesories;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;

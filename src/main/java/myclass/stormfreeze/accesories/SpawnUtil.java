@@ -1,9 +1,9 @@
-package myclass.jails.accesories;
+package myclass.stormfreeze.accesories;
 
 import java.io.File;
 import java.io.IOException;
 
-import myclass.jails.Main;
+import myclass.stormfreeze.Main;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.Listener;

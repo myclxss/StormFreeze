@@ -1,6 +1,6 @@
-name: Jails
+name: StormFreeze
 version: '${project.version}'
-main: myclass.jails.Main
+main: myclass.stormfreeze.Main
 api-version: 1.19
 authors: [ myclass ]
 
@@ -13,3 +13,7 @@ commands:
     description: 2
   setreleased:
     description: asd
+  setred:
+    description: asd
+  setgreen:
+    description: asd222

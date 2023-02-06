@@ -53,5 +53,10 @@ PARTICLES:
 # +------------------------------------------------------+ #
 ############################################################
 
-# BY Anhuar
-# Discord: Anhuar#7275
+COMMANDS-LIST:
+  - "sw leave"
+  - "me gaaaaaaaaaaaaaaa"
+
+COMMANDS-BLOCK:
+  - "/sw"
+  - "/SW"
