@@ -5,14 +5,30 @@
 ############################################################
 
 PREFIX: "&7[&6StormsFreeze&7]"
-COLOR-TARGET: "&e"
-RELOAD-MESSAGE: " &aThe plugin was reloaded correctly"
-CONSOLE-MESSAGE: "Commands are only executed in game"
-MESSAGE-NOT-PERMISSION: "&cYou do not have permissions for this command"
 
 ############################################################
 # +------------------------------------------------------+ #
-# |                   TITLE MESSAGE                      | #
+# |                     CHAT ACTIONS                     | #
+# +------------------------------------------------------+ #
+############################################################
+
+CHAT:
+  NO-PERMISSIONS: "&8(&eStormFreeze&8) &cYou don't have access to this."
+
+  CHAT-CREATED: "&8(&eFreezeChat&8) &aThe chat was created successfully."
+  CHAT-DELETED: "&8(&eFreezeChat&8) &cThe chat was successfully deleted."
+
+  SEND-FORMAT: "&8(&eFreezeChat&8) &aYou: &7<he_name> &8➼ &cHe: &7<you_name> &8➼ &e<message>."
+  RECEIVED-FORMAT: "&8(&eFreezeChat&8) &cHe: &7<he_name> &8➼ &aYou: &7<you_name> &8➼ &e<message>."
+
+  FROZZED-MESSAGE: "&8(&eStormFreeze&8) &cYou're frozen, you can't move."
+
+  STAFF-FROZZED-MESSAGE: "&8(&eStormFreeze&8) &aYou froze to &e<target_name>."
+  STAFF-UNFROZZED-MESSAGE: "&8(&eStormFreeze&8) &cDefrost at &e<target_name>."
+
+############################################################
+# +------------------------------------------------------+ #
+# |                    TITLE ACTIONS                     | #
 # +------------------------------------------------------+ #
 ############################################################
 
@@ -27,17 +43,24 @@ TITLES:
 
 ############################################################
 # +------------------------------------------------------+ #
-# |                MESSAGES IN THE CHAT                  | #
+# |                   COMMANDS ACTIONS                   | #
 # +------------------------------------------------------+ #
 ############################################################
 
-FROZZED-MESSAGE: "&cYou're frozen, you can't move"
-STAFF-FROZZED-MESSAGE: " You froze to "
-STAFF-UNFROZZED-MESSAGE: " &aDefrost at "
+COMMANDS:
+  FORCE-EJECUTE:
+    - "sw leave"
+    - "sprac leave"
+
+  DENY-EJECUTE:
+    - "/sw"
+    - "/SW"
+    - "/pay"
+    - "/PAY"
 
 ############################################################
 # +------------------------------------------------------+ #
-# |                    PARTICLES                         | #
+# |               FREEZE PLAYER ACTIONS                  | #
 # +------------------------------------------------------+ #
 ############################################################
 
@@ -47,16 +70,11 @@ PARTICLES:
 
 # More Particles: https://minecraft.fandom.com/wiki/Particles
 
-############################################################
-# +------------------------------------------------------+ #
-# |                      CREDITS                         | #
-# +------------------------------------------------------+ #
-############################################################
+HEAD-ITEM:
+  TYPE: WOOL
+  DATA: 14
 
-COMMANDS-LIST:
-  - "sw leave"
-  - "me gaaaaaaaaaaaaaaa"
-
-COMMANDS-BLOCK:
-  - "/sw"
-  - "/SW"
+BANNED-PLAYER:
+  ACTIVE: true
+  COMMAND: "ban"
+  REASON: "Testing reason."

@@ -1,5 +1,6 @@
 package myclass.stormfreeze;
 
+import me.clip.placeholderapi.PlaceholderAPI;
 import myclass.stormfreeze.accesories.SpawnUtil;
 import myclass.stormfreeze.accesories.TitleApi;
 import myclass.stormfreeze.accesories.Utils;
@@ -40,6 +41,9 @@ public final class Main extends JavaPlugin implements Listener, CommandExecutor{
     public Map<UUID, Location> frozenPlayers = new HashMap<>();
     public Map<UUID, ItemStack> helmets = new HashMap<>();
     public Map<UUID, BukkitTask> tasks = new HashMap<>();
+
+    public Map<UUID, UUID> freezeChat = new HashMap<>();
+
     private Main plugin;
 
     @Override
@@ -92,26 +96,6 @@ public final class Main extends JavaPlugin implements Listener, CommandExecutor{
     public static Main getInstance() {
         return Main.instance;
     }
-
-    @EventHandler
-    public void onPlayerFreezeJoin(PlayerJoinEvent event) {
-
-        SpawnUtil spawnCoords = SpawnUtil.getManager();
-
-        Player player = event.getPlayer();
-        if (frozenPlayers.containsKey(player.getUniqueId())) {
-            playFreezeAnimation(player, 10, getConfig().getInt("PARTICLES.AMOUNT"), 1, 0.05f);
-            World w = Bukkit.getServer().getWorld(spawnCoords.getConfig().getString("red.world"));
-            double x = spawnCoords.getConfig().getDouble("red.x");
-            double y = spawnCoords.getConfig().getDouble("red.y");
-            double z = spawnCoords.getConfig().getDouble("red.z");
-            float yaw = (float)spawnCoords.getConfig().getDouble("red.yaw");
-            float pitch = (float)spawnCoords.getConfig().getDouble("red.pitch");
-            Location loc = new Location(w, x, y, z, yaw, pitch);
-            player.teleport(loc);
-        }
-    }
-
     @EventHandler
     public void freezeEvent(PlayerMoveEvent e) {
 
@@ -121,7 +105,7 @@ public final class Main extends JavaPlugin implements Listener, CommandExecutor{
         if (!frozenPlayers.containsKey(e.getPlayer().getUniqueId())) {
             return;
         }
-        player.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("FROZZED-MESSAGE")));
+        player.sendMessage(Utils.color(Main.instance.getConfig().getString("CHAT.FROZZED-MESSAGE")));
         World w = Bukkit.getServer().getWorld(spawnCoords.getConfig().getString("red.world"));
         double x = spawnCoords.getConfig().getDouble("red.x");
         double y = spawnCoords.getConfig().getDouble("red.y");
@@ -188,28 +172,27 @@ public final class Main extends JavaPlugin implements Listener, CommandExecutor{
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("CONSOLE-MESSAGE")));
             return true;
         }
         Player player = (Player) sender;
 
         if (!player.hasPermission("stormsfreeze.use.commands")) {
-            player.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("MESSAGE-NOT-PERMISSION")));
+            player.sendMessage(Utils.color(Main.instance.getConfig().getString("CHAT.NO-PERMISSIONS")));
             return true;
         }
 
 
         if (args.length == 0) {
-            player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7&m-----------------------------------"));
-            player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&r"));
-            player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&8» &6Plugin: &fFreeze"));
-            player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&8» &6Developer: &fAnhuar"));
-            player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&r"));
-            player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&8» &6Commands:"));
-            player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&r  &f/ss (nick)"));
-            player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&r  &f/freeze (nick)"));
-            player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&r"));
-            player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7&m-----------------------------------"));
+            player.sendMessage(Utils.color( "&7&m-----------------------------------"));
+            player.sendMessage(Utils.color( "&r"));
+            player.sendMessage(Utils.color( "&8» &6Plugin: &fFreeze"));
+            player.sendMessage(Utils.color( "&8» &6Developer: &fAnhuar"));
+            player.sendMessage(Utils.color( "&r"));
+            player.sendMessage(Utils.color( "&8» &6Commands:"));
+            player.sendMessage(Utils.color( "&r  &f/ss (nick)"));
+            player.sendMessage(Utils.color( "&r  &f/freeze (nick)"));
+            player.sendMessage(Utils.color( "&r"));
+            player.sendMessage(Utils.color( "&7&m-----------------------------------"));
             return true;
         }
 
@@ -222,9 +205,18 @@ public final class Main extends JavaPlugin implements Listener, CommandExecutor{
 
             if (frozenPlayers.containsKey(target.getUniqueId())) {
                 frozenPlayers.remove(target.getUniqueId());
-                TitleApi.sendTitle(target, 10, 30, 10, ChatColor.translateAlternateColorCodes('&', getConfig().getString("TITLES.UNFROZED.TITLE")), getConfig().getString("TITLES.UNFROZED.SUBTITLE"));
+
+                freezeChat.remove(freezeChat.get(target.getUniqueId()));
+                freezeChat.remove(target.getUniqueId());
+
+                TitleApi.sendTitle(target, 10, 30, 10, Utils.color(Main.instance.getConfig().getString("TITLES.UNFROZED.TITLE")), Main.instance.getConfig().getString("TITLES.UNFROZED.SUBTITLE"));
                 cuandoDesfrozea(target);
-                player.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("PREFIX") + getConfig().getString("STAFF-UNFROZZED-MESSAGE") + getConfig().getString("COLOR-TARGET") + targetName));
+
+                String staffUnFrozedMessage = Main.instance.getConfig().getString("CHAT.STAFF-UNFROZZED-MESSAGE");
+                String replacedUnFrozedMessage = PlaceholderAPI.setPlaceholders(player, Utils.color(staffUnFrozedMessage));
+                replacedUnFrozedMessage = replacedUnFrozedMessage.replaceAll("<target_name>", targetName);
+                player.sendMessage(replacedUnFrozedMessage);
+
                 World w = Bukkit.getServer().getWorld(spawnCoords.getConfig().getString("green.world"));
                 double x = spawnCoords.getConfig().getDouble("green.x");
                 double y = spawnCoords.getConfig().getDouble("green.y");
@@ -233,11 +225,21 @@ public final class Main extends JavaPlugin implements Listener, CommandExecutor{
                 float pitch = (float)spawnCoords.getConfig().getDouble("green.pitch");
                 Location loc2 = new Location(w, x, y, z, yaw, pitch);
                 player.teleport(loc2);
+                player.sendMessage(Utils.color(Main.instance.getConfig().getString("CHAT.CHAT-DELETED")));
             } else {
                 frozenPlayers.put(target.getUniqueId(), target.getLocation().clone());
+
+                freezeChat.put(player.getUniqueId(), target.getUniqueId());
+                freezeChat.put(target.getUniqueId(), player.getUniqueId());
+
                 playFreezeAnimation(target, 10, getConfig().getInt("PARTICLES.AMOUNT"), 1, 0.05f);
                 cuandoFrozea(target);
-                player.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("PREFIX") + getConfig().getString("STAFF-FROZZED-MESSAGE") + getConfig().getString("COLOR-TARGET") + targetName));
+
+                String staffFrozedMessage = Main.instance.getConfig().getString("CHAT.STAFF-FROZZED-MESSAGE");
+                String replacedFrozedMessage = PlaceholderAPI.setPlaceholders(player, Utils.color(staffFrozedMessage));
+                replacedFrozedMessage = replacedFrozedMessage.replaceAll("<target_name>", targetName);
+                player.sendMessage(replacedFrozedMessage);
+
                 World w = Bukkit.getServer().getWorld(spawnCoords.getConfig().getString("red.world"));
                 double x = spawnCoords.getConfig().getDouble("red.x");
                 double y = spawnCoords.getConfig().getDouble("red.y");
@@ -245,6 +247,7 @@ public final class Main extends JavaPlugin implements Listener, CommandExecutor{
                 float yaw = (float)spawnCoords.getConfig().getDouble("red.yaw");
                 float pitch = (float)spawnCoords.getConfig().getDouble("red.pitch");
                 Location loc = new Location(w, x, y, z, yaw, pitch);
+                player.sendMessage(Utils.color(Main.instance.getConfig().getString("CHAT.CHAT-CREATED")));
                 player.teleport(loc);
             }
         }
@@ -285,10 +288,11 @@ public final class Main extends JavaPlugin implements Listener, CommandExecutor{
         if (player.getInventory().getHelmet() != null) {
             helmets.put(player.getUniqueId(), player.getInventory().getHelmet());
         }
-        List<String> commandlist = Main.instance.getConfig().getStringList("COMMANDS-LIST");
+        List<String> commandlist = Main.instance.getConfig().getStringList("COMMANDS.FORCE-EJECUTE");
         for (String s : commandlist) {
             Bukkit.dispatchCommand(player, s);
         }
+
         World w = Bukkit.getServer().getWorld(spawnCoords.getConfig().getString("red.world"));
         double x = spawnCoords.getConfig().getDouble("red.x");
         double y = spawnCoords.getConfig().getDouble("red.y");
@@ -297,20 +301,54 @@ public final class Main extends JavaPlugin implements Listener, CommandExecutor{
         float pitch = (float)spawnCoords.getConfig().getDouble("red.pitch");
         Location loc = new Location(w, x, y, z, yaw, pitch);
         player.teleport(loc);
-        player.getInventory().setHelmet(new ItemStack(Material.PACKED_ICE));
-        TitleApi.sendTitle(player, 10, 30, 10, ChatColor.translateAlternateColorCodes('&', getConfig().getString("TITLES.FROZED.TITLE")), getConfig().getString("TITLES.FROZED.SUBTITLE"));
+
+        int data = Main.getInstance().getConfig().getInt("HEAD-ITEM.DATA");
+        player.getInventory().setHelmet(new ItemStack(Material.getMaterial(getConfig().getString("HEAD-ITEM.TYPE")),1 ,(short) data));
+        TitleApi.sendTitle(player, 10, 30, 10, Utils.color(Main.instance.getConfig().getString("TITLES.FROZED.TITLE")), Main.instance.getConfig().getString("TITLES.FROZED.SUBTITLE"));
         player.getPlayer().setGameMode(GameMode.ADVENTURE);
+        player.sendMessage(Utils.color(Main.instance.getConfig().getString("CHAT.CHAT-CREATED")));
     }
+
+
+
     @EventHandler
     public void commandBlock(PlayerCommandPreprocessEvent event) {
         if (frozenPlayers.containsKey(event.getPlayer().getUniqueId())) {
-            List<String> blocklist = Main.instance.getConfig().getStringList("COMMANDS-BLOCK");
+            List<String> blocklist = Main.instance.getConfig().getStringList("COMMANDS.DENY-EJECUTE");
             for (String s : blocklist) {
                 if (event.getMessage().startsWith(s)) {
                     event.setCancelled(true);
-                    event.getPlayer().sendMessage("no tienes permisos xddddd");
+                    event.getPlayer().sendMessage(Utils.color(Main.instance.getConfig().getString("CHAT.NO-PERMISSIONS")));
                 }
             }
+        }
+    }
+
+    @EventHandler
+    public void onChat(AsyncPlayerChatEvent event) {
+
+        Player player = event.getPlayer();
+
+        if (freezeChat.containsKey(player.getUniqueId())) {
+            UUID uuid = freezeChat.get(player.getUniqueId());
+            Player target = Bukkit.getPlayer(uuid);
+
+
+            String receivedMessage = Main.instance.getConfig().getString("CHAT.RECEIVED-FORMAT");
+            String replacedMessage = PlaceholderAPI.setPlaceholders(event.getPlayer(), Utils.color(receivedMessage));
+            replacedMessage = replacedMessage.replaceAll("<he_name>", player.getName());
+            replacedMessage = replacedMessage.replaceAll("<you_name>", target.getName());
+            replacedMessage = replacedMessage.replaceAll("<message>", event.getMessage());
+            target.sendMessage(replacedMessage);
+
+            String sendMessage = Main.instance.getConfig().getString("CHAT.SEND-FORMAT");
+            String replacedMessage1 = PlaceholderAPI.setPlaceholders(event.getPlayer(), Utils.color(sendMessage));
+            replacedMessage1 = replacedMessage1.replaceAll("<he_name>", player.getName());
+            replacedMessage1 = replacedMessage1.replaceAll("<you_name>", target.getName());
+            replacedMessage1 = replacedMessage1.replaceAll("<message>", event.getMessage());
+            player.sendMessage(replacedMessage1);
+
+            event.setCancelled(true);
         }
     }
 
@@ -330,9 +368,10 @@ public final class Main extends JavaPlugin implements Listener, CommandExecutor{
         float pitch = (float)spawnCoords.getConfig().getDouble("green.pitch");
         Location loc2 = new Location(w, x, y, z, yaw, pitch);
         player.teleport(loc2);
-        player.getInventory().setHelmet(new ItemStack(Material.AIR));
+        player.getInventory().setHelmet(null);
         player.getPlayer().setGameMode(GameMode.SURVIVAL);
-        
+        player.sendMessage(Utils.color(Main.instance.getConfig().getString("CHAT.CHAT-DELETED")));
+
     }
 
     public void onStop() {
@@ -350,6 +389,13 @@ public final class Main extends JavaPlugin implements Listener, CommandExecutor{
         if (frozenPlayers.containsKey(player.getUniqueId())) {
             tasks.get(player.getUniqueId()).cancel();
             tasks.remove(player.getUniqueId());
+
+            frozenPlayers.remove(player.getUniqueId());
+            freezeChat.remove(freezeChat.get(player.getUniqueId()));
+            freezeChat.remove(player.getUniqueId());
+            player.getInventory().setHelmet(null);
+
+            Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), Main.instance.getConfig().getString("BANNED-PLAYER.COMMAND") + " " + player.getName() + " " + Main.instance.getConfig().getString("BANNED-PLAYER.REASON"));
         }
     }
 }
