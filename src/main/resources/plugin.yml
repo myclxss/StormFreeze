@@ -9,11 +9,12 @@ commands:
     description: command freeze
   ss:
     description: command freeze 2
-  setjail:
-    description: 2
-  setreleased:
-    description: asd
-  setred:
-    description: asd
-  setgreen:
-    description: asd222
+  stormfreeze:
+    description: main command
+
+
+permissions:
+  stormfreeze.staff:
+    description: use commands staff
+  stormfreeze.admin:
+    description: use commands admin

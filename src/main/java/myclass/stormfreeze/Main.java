@@ -4,8 +4,7 @@ import me.clip.placeholderapi.PlaceholderAPI;
 import myclass.stormfreeze.accesories.SpawnUtil;
 import myclass.stormfreeze.accesories.TitleApi;
 import myclass.stormfreeze.accesories.Utils;
-import myclass.stormfreeze.nuevo.SetGreenLocation;
-import myclass.stormfreeze.nuevo.SetRedlocation;
+import myclass.stormfreeze.commands.SetCommands;
 import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.EventHandler;
@@ -49,9 +48,9 @@ public final class Main extends JavaPlugin implements Listener, CommandExecutor{
     @Override
     public void onEnable() {
 
-        Utils.log("&e╔═╗╔═╗");
-        Utils.log("&e╚═╗║       -&6MoonHub &7- &aOnline");
-        Utils.log("&e╚═╝╚═╝");
+        Utils.log("&e════════════════════════════════════════════════════");
+        Utils.log("&8(&eStormFreeze&8) --> &aby myclass &8--> &aOnline");
+        Utils.log("&e════════════════════════════════════════════════════");
 
         Main.instance = this;
 
@@ -66,9 +65,9 @@ public final class Main extends JavaPlugin implements Listener, CommandExecutor{
     @Override
     public void onDisable() {
 
-        Utils.log("&e╔═╗╔═╗");
-        Utils.log("&e╚═╗║       -&6MoonHub &7- &cOffline");
-        Utils.log("&e╚═╝╚═╝");
+        Utils.log("&e════════════════════════════════════════════════════");
+        Utils.log("&8(&eStormFreeze&8) --> &aby myclass &8--> &cOffline");
+        Utils.log("&e════════════════════════════════════════════════════");
 
         Main.instance = null;
         onStop();
@@ -80,17 +79,16 @@ public final class Main extends JavaPlugin implements Listener, CommandExecutor{
         /* Global Listeners */
         getServer().getPluginManager().registerEvents(this, this);
 
-        Utils.log("&7(&6SuitCosmetics&7) &aListener Loaded...");
+        Utils.log("&8(&eStormFreeze&8) &aListener Loaded...");
 
     }
     public void loadCommand() {
 
         getCommand("freeze").setExecutor(this);
         getCommand("ss").setExecutor(this);
-        getCommand("setred").setExecutor(new SetRedlocation(this));
-        getCommand("setgreen").setExecutor(new SetGreenLocation(this));
+        getCommand("stormfreeze").setExecutor(new SetCommands(this));
 
-        Utils.log("&7(&6SuitCosmetics&7) &aCommands Loaded...");
+        Utils.log("&8(&eStormFreeze&8) &aCommands Loaded...");
 
     }
     public static Main getInstance() {
@@ -106,12 +104,12 @@ public final class Main extends JavaPlugin implements Listener, CommandExecutor{
             return;
         }
         player.sendMessage(Utils.color(Main.instance.getConfig().getString("CHAT.FROZZED-MESSAGE")));
-        World w = Bukkit.getServer().getWorld(spawnCoords.getConfig().getString("red.world"));
-        double x = spawnCoords.getConfig().getDouble("red.x");
-        double y = spawnCoords.getConfig().getDouble("red.y");
-        double z = spawnCoords.getConfig().getDouble("red.z");
-        float yaw = (float)spawnCoords.getConfig().getDouble("red.yaw");
-        float pitch = (float)spawnCoords.getConfig().getDouble("red.pitch");
+        World w = Bukkit.getServer().getWorld(spawnCoords.getConfig().getString("JAIL.WORLD"));
+        double x = spawnCoords.getConfig().getDouble("JAIL.X");
+        double y = spawnCoords.getConfig().getDouble("JAIL.Y");
+        double z = spawnCoords.getConfig().getDouble("JAIL.Z");
+        float yaw = (float)spawnCoords.getConfig().getDouble("JAIL.YAW");
+        float pitch = (float)spawnCoords.getConfig().getDouble("JAIL.PITCH");
         Location loc = new Location(w, x, y, z, yaw, pitch);
         player.teleport(loc);
 
@@ -176,7 +174,7 @@ public final class Main extends JavaPlugin implements Listener, CommandExecutor{
         }
         Player player = (Player) sender;
 
-        if (!player.hasPermission("stormsfreeze.use.commands")) {
+        if (!player.hasPermission("stormfreeze.staff")) {
             player.sendMessage(Utils.color(Main.instance.getConfig().getString("CHAT.NO-PERMISSIONS")));
             return true;
         }
@@ -185,8 +183,8 @@ public final class Main extends JavaPlugin implements Listener, CommandExecutor{
         if (args.length == 0) {
             player.sendMessage(Utils.color( "&7&m-----------------------------------"));
             player.sendMessage(Utils.color( "&r"));
-            player.sendMessage(Utils.color( "&8» &6Plugin: &fFreeze"));
-            player.sendMessage(Utils.color( "&8» &6Developer: &fAnhuar"));
+            player.sendMessage(Utils.color( "&8» &6Plugin: &fStormFreeze"));
+            player.sendMessage(Utils.color( "&8» &6Developer: &fmyclass"));
             player.sendMessage(Utils.color( "&r"));
             player.sendMessage(Utils.color( "&8» &6Commands:"));
             player.sendMessage(Utils.color( "&r  &f/ss (nick)"));
@@ -217,12 +215,12 @@ public final class Main extends JavaPlugin implements Listener, CommandExecutor{
                 replacedUnFrozedMessage = replacedUnFrozedMessage.replaceAll("<target_name>", targetName);
                 player.sendMessage(replacedUnFrozedMessage);
 
-                World w = Bukkit.getServer().getWorld(spawnCoords.getConfig().getString("green.world"));
-                double x = spawnCoords.getConfig().getDouble("green.x");
-                double y = spawnCoords.getConfig().getDouble("green.y");
-                double z = spawnCoords.getConfig().getDouble("green.z");
-                float yaw = (float)spawnCoords.getConfig().getDouble("green.yaw");
-                float pitch = (float)spawnCoords.getConfig().getDouble("green.pitch");
+                World w = Bukkit.getServer().getWorld(spawnCoords.getConfig().getString("SAFEZONE.WORLD"));
+                double x = spawnCoords.getConfig().getDouble("SAFEZONE.X");
+                double y = spawnCoords.getConfig().getDouble("SAFEZONE.Y");
+                double z = spawnCoords.getConfig().getDouble("SAFEZONE.Z");
+                float yaw = (float)spawnCoords.getConfig().getDouble("SAFEZONE.YAW");
+                float pitch = (float)spawnCoords.getConfig().getDouble("SAFEZONE.PITCH");
                 Location loc2 = new Location(w, x, y, z, yaw, pitch);
                 player.teleport(loc2);
                 player.sendMessage(Utils.color(Main.instance.getConfig().getString("CHAT.CHAT-DELETED")));
@@ -240,12 +238,12 @@ public final class Main extends JavaPlugin implements Listener, CommandExecutor{
                 replacedFrozedMessage = replacedFrozedMessage.replaceAll("<target_name>", targetName);
                 player.sendMessage(replacedFrozedMessage);
 
-                World w = Bukkit.getServer().getWorld(spawnCoords.getConfig().getString("red.world"));
-                double x = spawnCoords.getConfig().getDouble("red.x");
-                double y = spawnCoords.getConfig().getDouble("red.y");
-                double z = spawnCoords.getConfig().getDouble("red.z");
-                float yaw = (float)spawnCoords.getConfig().getDouble("red.yaw");
-                float pitch = (float)spawnCoords.getConfig().getDouble("red.pitch");
+                World w = Bukkit.getServer().getWorld(spawnCoords.getConfig().getString("JAIL.WORLD"));
+                double x = spawnCoords.getConfig().getDouble("JAIL.X");
+                double y = spawnCoords.getConfig().getDouble("JAIL.Y");
+                double z = spawnCoords.getConfig().getDouble("JAIL.Z");
+                float yaw = (float)spawnCoords.getConfig().getDouble("JAIL.YAW");
+                float pitch = (float)spawnCoords.getConfig().getDouble("JAIL.PITCH");
                 Location loc = new Location(w, x, y, z, yaw, pitch);
                 player.sendMessage(Utils.color(Main.instance.getConfig().getString("CHAT.CHAT-CREATED")));
                 player.teleport(loc);
@@ -293,12 +291,12 @@ public final class Main extends JavaPlugin implements Listener, CommandExecutor{
             Bukkit.dispatchCommand(player, s);
         }
 
-        World w = Bukkit.getServer().getWorld(spawnCoords.getConfig().getString("red.world"));
-        double x = spawnCoords.getConfig().getDouble("red.x");
-        double y = spawnCoords.getConfig().getDouble("red.y");
-        double z = spawnCoords.getConfig().getDouble("red.z");
-        float yaw = (float)spawnCoords.getConfig().getDouble("red.yaw");
-        float pitch = (float)spawnCoords.getConfig().getDouble("red.pitch");
+        World w = Bukkit.getServer().getWorld(spawnCoords.getConfig().getString("JAIL.WORLD"));
+        double x = spawnCoords.getConfig().getDouble("JAIL.X");
+        double y = spawnCoords.getConfig().getDouble("JAIL.Y");
+        double z = spawnCoords.getConfig().getDouble("JAIL.Z");
+        float yaw = (float)spawnCoords.getConfig().getDouble("JAIL.YAW");
+        float pitch = (float)spawnCoords.getConfig().getDouble("JAIL.PITCH");
         Location loc = new Location(w, x, y, z, yaw, pitch);
         player.teleport(loc);
 
@@ -360,12 +358,12 @@ public final class Main extends JavaPlugin implements Listener, CommandExecutor{
         if (player.getInventory().getHelmet() != null) {
             helmets.put(player.getUniqueId(), player.getInventory().getHelmet());
         }
-        World w = Bukkit.getServer().getWorld(spawnCoords.getConfig().getString("green.world"));
-        double x = spawnCoords.getConfig().getDouble("green.x");
-        double y = spawnCoords.getConfig().getDouble("green.y");
-        double z = spawnCoords.getConfig().getDouble("green.z");
-        float yaw = (float)spawnCoords.getConfig().getDouble("green.yaw");
-        float pitch = (float)spawnCoords.getConfig().getDouble("green.pitch");
+        World w = Bukkit.getServer().getWorld(spawnCoords.getConfig().getString("SAFEZONE.WORLD"));
+        double x = spawnCoords.getConfig().getDouble("SAFEZONE.X");
+        double y = spawnCoords.getConfig().getDouble("SAFEZONE.Y");
+        double z = spawnCoords.getConfig().getDouble("SAFEZONE.Z");
+        float yaw = (float)spawnCoords.getConfig().getDouble("SAFEZONE.YAW");
+        float pitch = (float)spawnCoords.getConfig().getDouble("SAFEZONE.PITCH");
         Location loc2 = new Location(w, x, y, z, yaw, pitch);
         player.teleport(loc2);
         player.getInventory().setHelmet(null);
@@ -395,7 +393,9 @@ public final class Main extends JavaPlugin implements Listener, CommandExecutor{
             freezeChat.remove(player.getUniqueId());
             player.getInventory().setHelmet(null);
 
-            Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), Main.instance.getConfig().getString("BANNED-PLAYER.COMMAND") + " " + player.getName() + " " + Main.instance.getConfig().getString("BANNED-PLAYER.REASON"));
+            if (Main.instance.getConfig().getString("BANNED-PLAYER.ACTIVE").equals("true")) {
+                Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), Main.instance.getConfig().getString("BANNED-PLAYER.COMMAND") + " " + player.getName() + " " + Main.instance.getConfig().getString("BANNED-PLAYER.REASON"));
+            }
         }
     }
 }

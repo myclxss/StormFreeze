@@ -4,7 +4,13 @@
 # +------------------------------------------------------+ #
 ############################################################
 
-PREFIX: "&7[&6StormsFreeze&7]"
+# This is the first public version of the plugin, any bugs
+# or new suggestions can be made via my discord or a comment
+# on spigot.
+
+# Discord: myclass#9779
+# Spigot:
+# Portfolio: https://anhuar.space
 
 ############################################################
 # +------------------------------------------------------+ #
@@ -71,8 +77,10 @@ PARTICLES:
 # More Particles: https://minecraft.fandom.com/wiki/Particles
 
 HEAD-ITEM:
-  TYPE: WOOL
-  DATA: 14
+  TYPE: ICE
+  DATA: 0
+
+# More Items: https://minecraft-ids.grahamedgecombe.com/
 
 BANNED-PLAYER:
   ACTIVE: true
