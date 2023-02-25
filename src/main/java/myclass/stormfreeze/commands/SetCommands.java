@@ -47,5 +47,3 @@ public class SetCommands implements CommandExecutor {
         return false;
     }
 }
-
-
