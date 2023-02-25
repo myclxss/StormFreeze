@@ -2,8 +2,9 @@ name: StormFreeze
 version: '${project.version}'
 main: myclass.stormfreeze.Main
 api-version: 1.19
-authors: [ myclass ]
 website: https://myclxss.online
+authors: [ myclass ]
+
 
 commands:
   freeze:
