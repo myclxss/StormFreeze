@@ -5,6 +5,7 @@ import myclass.stormfreeze.accesories.SpawnUtil;
 import myclass.stormfreeze.accesories.TitleApi;
 import myclass.stormfreeze.accesories.Utils;
 import myclass.stormfreeze.commands.SetCommands;
+import myclass.stormfreeze.listener.SetLocations;
 import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.EventHandler;
@@ -30,7 +31,7 @@ import org.bukkit.scheduler.BukkitTask;
 import java.io.File;
 import java.util.*;
 
-public final class Main extends JavaPlugin implements Listener, CommandExecutor{
+public final class Main extends JavaPlugin implements Listener, CommandExecutor {
 
 
     public File location;
@@ -62,6 +63,7 @@ public final class Main extends JavaPlugin implements Listener, CommandExecutor{
         saveDefaultConfig();
 
     }
+
     @Override
     public void onDisable() {
 
@@ -73,15 +75,17 @@ public final class Main extends JavaPlugin implements Listener, CommandExecutor{
         onStop();
 
     }
+
     public void loadListener() {
         PluginManager pluginManager = Bukkit.getPluginManager();
 
         /* Global Listeners */
         getServer().getPluginManager().registerEvents(this, this);
-
+        getServer().getPluginManager().registerEvents(new SetLocations(), this);
         Utils.log("&8(&eStormFreeze&8) &aListener Loaded...");
 
     }
+
     public void loadCommand() {
 
         getCommand("freeze").setExecutor(this);
@@ -91,9 +95,11 @@ public final class Main extends JavaPlugin implements Listener, CommandExecutor{
         Utils.log("&8(&eStormFreeze&8) &aCommands Loaded...");
 
     }
+
     public static Main getInstance() {
         return Main.instance;
     }
+
     @EventHandler
     public void freezeEvent(PlayerMoveEvent e) {
 
@@ -103,13 +109,12 @@ public final class Main extends JavaPlugin implements Listener, CommandExecutor{
         if (!frozenPlayers.containsKey(e.getPlayer().getUniqueId())) {
             return;
         }
-        player.sendMessage(Utils.color(Main.instance.getConfig().getString("CHAT.FROZZED-MESSAGE")));
         World w = Bukkit.getServer().getWorld(spawnCoords.getConfig().getString("JAIL.WORLD"));
         double x = spawnCoords.getConfig().getDouble("JAIL.X");
         double y = spawnCoords.getConfig().getDouble("JAIL.Y");
         double z = spawnCoords.getConfig().getDouble("JAIL.Z");
-        float yaw = (float)spawnCoords.getConfig().getDouble("JAIL.YAW");
-        float pitch = (float)spawnCoords.getConfig().getDouble("JAIL.PITCH");
+        float yaw = (float) spawnCoords.getConfig().getDouble("JAIL.YAW");
+        float pitch = (float) spawnCoords.getConfig().getDouble("JAIL.PITCH");
         Location loc = new Location(w, x, y, z, yaw, pitch);
         player.teleport(loc);
 
@@ -122,7 +127,6 @@ public final class Main extends JavaPlugin implements Listener, CommandExecutor{
             return;
         }
         e.setCancelled(true);
-        return;
     }
 
     @EventHandler
@@ -132,7 +136,6 @@ public final class Main extends JavaPlugin implements Listener, CommandExecutor{
             return;
         }
         e.setCancelled(true);
-        return;
     }
 
     @EventHandler
@@ -142,7 +145,6 @@ public final class Main extends JavaPlugin implements Listener, CommandExecutor{
             return;
         }
         e.setCancelled(true);
-        return;
     }
 
     @EventHandler
@@ -153,7 +155,6 @@ public final class Main extends JavaPlugin implements Listener, CommandExecutor{
         }
         e.setCancelled(true);
         player.updateInventory();
-        return;
     }
 
     @EventHandler
@@ -181,16 +182,15 @@ public final class Main extends JavaPlugin implements Listener, CommandExecutor{
 
 
         if (args.length == 0) {
-            player.sendMessage(Utils.color( "&7&m-----------------------------------"));
-            player.sendMessage(Utils.color( "&r"));
-            player.sendMessage(Utils.color( "&8» &6Plugin: &fStormFreeze"));
-            player.sendMessage(Utils.color( "&8» &6Developer: &fmyclass"));
-            player.sendMessage(Utils.color( "&r"));
-            player.sendMessage(Utils.color( "&8» &6Commands:"));
-            player.sendMessage(Utils.color( "&r  &f/ss (nick)"));
-            player.sendMessage(Utils.color( "&r  &f/freeze (nick)"));
-            player.sendMessage(Utils.color( "&r"));
-            player.sendMessage(Utils.color( "&7&m-----------------------------------"));
+            player.sendMessage(Utils.color("&r"));
+            player.sendMessage(Utils.color("&7&m-----------------------------------"));
+            player.sendMessage(Utils.color("&r"));
+            player.sendMessage(Utils.color("&8» &6Plugin: &fStormFreeze"));
+            player.sendMessage(Utils.color("&8» &6Developer: &fmyclass"));
+            player.sendMessage(Utils.color("&8» &6Web page: &fhttps://myclxss.online"));
+            player.sendMessage(Utils.color("&r"));
+            player.sendMessage(Utils.color("&7&m-----------------------------------"));
+            player.sendMessage(Utils.color("&r"));
             return true;
         }
 
@@ -215,12 +215,13 @@ public final class Main extends JavaPlugin implements Listener, CommandExecutor{
                 replacedUnFrozedMessage = replacedUnFrozedMessage.replaceAll("<target_name>", targetName);
                 player.sendMessage(replacedUnFrozedMessage);
 
+                player.sendMessage(Utils.color(Main.instance.getConfig().getString("CHAT.FROZZED-MESSAGE")));
                 World w = Bukkit.getServer().getWorld(spawnCoords.getConfig().getString("SAFEZONE.WORLD"));
                 double x = spawnCoords.getConfig().getDouble("SAFEZONE.X");
                 double y = spawnCoords.getConfig().getDouble("SAFEZONE.Y");
                 double z = spawnCoords.getConfig().getDouble("SAFEZONE.Z");
-                float yaw = (float)spawnCoords.getConfig().getDouble("SAFEZONE.YAW");
-                float pitch = (float)spawnCoords.getConfig().getDouble("SAFEZONE.PITCH");
+                float yaw = (float) spawnCoords.getConfig().getDouble("SAFEZONE.YAW");
+                float pitch = (float) spawnCoords.getConfig().getDouble("SAFEZONE.PITCH");
                 Location loc2 = new Location(w, x, y, z, yaw, pitch);
                 player.teleport(loc2);
                 player.sendMessage(Utils.color(Main.instance.getConfig().getString("CHAT.CHAT-DELETED")));
@@ -242,8 +243,8 @@ public final class Main extends JavaPlugin implements Listener, CommandExecutor{
                 double x = spawnCoords.getConfig().getDouble("JAIL.X");
                 double y = spawnCoords.getConfig().getDouble("JAIL.Y");
                 double z = spawnCoords.getConfig().getDouble("JAIL.Z");
-                float yaw = (float)spawnCoords.getConfig().getDouble("JAIL.YAW");
-                float pitch = (float)spawnCoords.getConfig().getDouble("JAIL.PITCH");
+                float yaw = (float) spawnCoords.getConfig().getDouble("JAIL.YAW");
+                float pitch = (float) spawnCoords.getConfig().getDouble("JAIL.PITCH");
                 Location loc = new Location(w, x, y, z, yaw, pitch);
                 player.sendMessage(Utils.color(Main.instance.getConfig().getString("CHAT.CHAT-CREATED")));
                 player.teleport(loc);
@@ -295,18 +296,17 @@ public final class Main extends JavaPlugin implements Listener, CommandExecutor{
         double x = spawnCoords.getConfig().getDouble("JAIL.X");
         double y = spawnCoords.getConfig().getDouble("JAIL.Y");
         double z = spawnCoords.getConfig().getDouble("JAIL.Z");
-        float yaw = (float)spawnCoords.getConfig().getDouble("JAIL.YAW");
-        float pitch = (float)spawnCoords.getConfig().getDouble("JAIL.PITCH");
+        float yaw = (float) spawnCoords.getConfig().getDouble("JAIL.YAW");
+        float pitch = (float) spawnCoords.getConfig().getDouble("JAIL.PITCH");
         Location loc = new Location(w, x, y, z, yaw, pitch);
         player.teleport(loc);
 
         int data = Main.getInstance().getConfig().getInt("HEAD-ITEM.DATA");
-        player.getInventory().setHelmet(new ItemStack(Material.getMaterial(getConfig().getString("HEAD-ITEM.TYPE")),1 ,(short) data));
+        player.getInventory().setHelmet(new ItemStack(Material.getMaterial(getConfig().getString("HEAD-ITEM.TYPE")), 1, (short) data));
         TitleApi.sendTitle(player, 10, 30, 10, Utils.color(Main.instance.getConfig().getString("TITLES.FROZED.TITLE")), Main.instance.getConfig().getString("TITLES.FROZED.SUBTITLE"));
         player.getPlayer().setGameMode(GameMode.ADVENTURE);
         player.sendMessage(Utils.color(Main.instance.getConfig().getString("CHAT.CHAT-CREATED")));
     }
-
 
 
     @EventHandler
@@ -362,8 +362,8 @@ public final class Main extends JavaPlugin implements Listener, CommandExecutor{
         double x = spawnCoords.getConfig().getDouble("SAFEZONE.X");
         double y = spawnCoords.getConfig().getDouble("SAFEZONE.Y");
         double z = spawnCoords.getConfig().getDouble("SAFEZONE.Z");
-        float yaw = (float)spawnCoords.getConfig().getDouble("SAFEZONE.YAW");
-        float pitch = (float)spawnCoords.getConfig().getDouble("SAFEZONE.PITCH");
+        float yaw = (float) spawnCoords.getConfig().getDouble("SAFEZONE.YAW");
+        float pitch = (float) spawnCoords.getConfig().getDouble("SAFEZONE.PITCH");
         Location loc2 = new Location(w, x, y, z, yaw, pitch);
         player.teleport(loc2);
         player.getInventory().setHelmet(null);

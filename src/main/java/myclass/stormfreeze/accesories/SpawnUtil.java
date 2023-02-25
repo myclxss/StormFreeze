@@ -9,17 +9,19 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.Listener;
 
 public class SpawnUtil implements Listener {
-    private Main plugin = (Main) Main.getPlugin(Main.class);
+    private final Main plugin = Main.getPlugin(Main.class);
 
     public File location;
 
     public YamlConfiguration spawnCoords;
 
-    private static SpawnUtil manager = new SpawnUtil();
+    private static final SpawnUtil manager = new SpawnUtil();
 
-    private SpawnUtil() {}
+    private SpawnUtil() {
+    }
 
-    public SpawnUtil(Main mainclass) {}
+    public SpawnUtil(Main mainclass) {
+    }
 
     public static SpawnUtil getManager() {
         return manager;
@@ -34,19 +36,20 @@ public class SpawnUtil implements Listener {
         this.spawnCoords = new YamlConfiguration();
         try {
             this.spawnCoords.load(this.location);
-        } catch (IOException|org.bukkit.configuration.InvalidConfigurationException e) {
+        } catch (IOException | org.bukkit.configuration.InvalidConfigurationException e) {
             e.printStackTrace();
         }
     }
 
     public FileConfiguration getConfig() {
-        return (FileConfiguration)this.spawnCoords;
+        return this.spawnCoords;
     }
 
     public void saveConfig() {
         try {
             this.spawnCoords.save(this.location);
-        } catch (IOException iOException) {}
+        } catch (IOException iOException) {
+        }
     }
 
     public void reloadConfig() {
